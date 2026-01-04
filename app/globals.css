@@ -1,0 +1,172 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Reverting to the original cooler blue palette */
+  --background: 220 40% 8%;
+  --foreground: 0 0% 100%; /* Updated to pure white for maximum contrast */
+  --card: 217 35% 12%;
+  --card-foreground: 0 0% 100%; /* Updated to pure white for maximum contrast */
+  --popover: 217 35% 12%;
+  --popover-foreground: 0 0% 100%; /* Updated to pure white for maximum contrast */
+  --primary: 200 90% 55%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 215 25% 20%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 215 25% 20%;
+  --muted-foreground: 210 40% 96%; /* Updated to very light gray (Slate-200) for readable secondary text */
+  --accent: 200 90% 55%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 215 30% 18%;
+  --input: 215 30% 18%;
+  --ring: 200 90% 55%;
+  --chart-1: 200 90% 55%;
+  --chart-2: 200 80% 60%;
+  --chart-3: 201 75% 65%;
+  --chart-4: 202 70% 70%;
+  --chart-5: 203 65% 75%;
+  --radius: 1rem;
+  --sidebar: 217 35% 12%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-primary: 200 90% 55%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 215 30% 18%;
+  --sidebar-accent-foreground: 210 40% 98%;
+  --sidebar-border: 215 30% 18%;
+  --sidebar-ring: 200 90% 55%;
+}
+
+.dark {
+  --background: 220 40% 8%;
+  --foreground: 0 0% 100%; /* Updated to pure white for maximum contrast */
+  --card: 217 35% 12%;
+  --card-foreground: 0 0% 100%; /* Updated to pure white for maximum contrast */
+  --popover: 217 35% 12%;
+  --popover-foreground: 0 0% 100%; /* Updated to pure white for maximum contrast */
+  --primary: 200 90% 55%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 215 25% 20%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 215 25% 20%;
+  --muted-foreground: 210 40% 96%; /* Updated to very light gray (Slate-200) for readable secondary text */
+  --accent: 200 90% 55%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 215 30% 18%;
+  --input: 215 30% 18%;
+  --ring: 200 90% 55%;
+  --chart-1: 200 90% 55%;
+  --chart-2: 200 80% 60%;
+  --chart-3: 201 75% 65%;
+  --chart-4: 202 70% 70%;
+  --chart-5: 203 65% 75%;
+  --sidebar: 217 35% 12%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-primary: 200 90% 55%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 215 30% 18%;
+  --sidebar-accent-foreground: 210 40% 98%;
+  --sidebar-border: 215 30% 18%;
+  --sidebar-ring: 200 90% 55%;
+}
+
+@theme inline {
+  /* Using Playfair Display and Courier Prime instead of Cinzel */
+  --font-sans: "Geist", "Geist Fallback";
+  --font-mono: "Courier Prime", "Courier New", monospace;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom animations for gradient and atmospheric effects */
+@keyframes gradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 20s ease infinite;
+}
+
+/* Grainy noise texture for atmospheric fog effect */
+.grainy-texture {
+  position: relative;
+}
+
+.grainy-texture::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.15;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Parchment texture for writing desk textarea */
+.parchment-texture {
+  background-color: hsl(40, 15%, 92%);
+  background-image: linear-gradient(
+      90deg,
+      transparent 79px,
+      hsl(40, 10%, 88%) 79px,
+      hsl(40, 10%, 88%) 81px,
+      transparent 81px
+    ), repeating-linear-gradient(transparent, transparent 2px, hsl(40, 10%, 85%) 2px, hsl(40, 10%, 85%) 3px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}

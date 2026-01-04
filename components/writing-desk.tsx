@@ -105,7 +105,7 @@ export function WritingDesk({ onClose }: WritingDeskProps) {
                         className={`px-4 py-2 rounded-full text-sm font-serif transition-all font-medium text-white border-2 ${
                           selectedMood === mood
                             ? "border-white shadow-[0_0_15px_rgba(255,255,255,0.4)] bg-white/10"
-                            : "border-transparent bg-transparent"
+                            : "border-white/10 bg-transparent hover:border-white/30"
                         }`}
                       >
                         {mood}

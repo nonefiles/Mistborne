@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, Mail, Clock } from "lucide-react"
+import { ArrowLeft, Mail, Clock, Flame } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { getArrivedLetters, type Letter as SupabaseLetter } from "@/services/letter-service"
+import { getArrivedLetters, reactToLetter, type Letter as SupabaseLetter } from "@/services/letter-service"
+import { useToast } from "@/hooks/use-toast"
 
 interface MailboxProps {
   onBack: () => void
@@ -19,6 +20,9 @@ interface Letter {
   content: string
   status: "arrived" | "opened"
   arrivalTime: string
+  reactions: {
+    fire: number
+  }
 }
 
 function formatRelativeTime(dateString: string): string {
@@ -41,6 +45,7 @@ function transformLetter(letter: SupabaseLetter): Letter {
     content: letter.content,
     status: "arrived",
     arrivalTime: formatRelativeTime(letter.delivery_at),
+    reactions: letter.reactions || { fire: 0 },
   }
 }
 
@@ -48,6 +53,9 @@ export function Mailbox({ onBack }: MailboxProps) {
   const [letters, setLetters] = useState<Letter[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null)
+  const [isReacting, setIsReacting] = useState(false)
+  const [reactedLetterIds, setReactedLetterIds] = useState<string[]>([])
+  const { toast } = useToast()
 
   useEffect(() => {
     async function fetchLetters() {
@@ -57,6 +65,16 @@ export function Mailbox({ onBack }: MailboxProps) {
       setIsLoading(false)
     }
     fetchLetters()
+
+    // Load reacted letters from localStorage
+    const saved = localStorage.getItem("mistborne_burned_letters")
+    if (saved) {
+      try {
+        setReactedLetterIds(JSON.parse(saved))
+      } catch (e) {
+        console.error("Failed to parse reacted letters:", e)
+      }
+    }
   }, [])
 
   const openLetter = (letter: Letter) => {
@@ -64,6 +82,44 @@ export function Mailbox({ onBack }: MailboxProps) {
     // Mark as opened
     setLetters(letters.map((l) => (l.id === letter.id ? { ...l, status: "opened" as const } : l)))
   }
+
+  const handleReact = async (id: string) => {
+    if (isReacting || reactedLetterIds.includes(id)) return
+    setIsReacting(true)
+
+    const result = await reactToLetter(id, "fire")
+
+    if (result.success && result.fireCount !== undefined) {
+      // Update local state
+      const newReactedIds = [...reactedLetterIds, id]
+      setReactedLetterIds(newReactedIds)
+      localStorage.setItem("mistborne_burned_letters", JSON.stringify(newReactedIds))
+
+      setLetters((prev) =>
+        prev.map((l) => (l.id === id ? { ...l, reactions: { ...l.reactions, fire: result.fireCount! } } : l)),
+      )
+      if (selectedLetter && selectedLetter.id === id) {
+        setSelectedLetter((prev) =>
+          prev ? { ...prev, reactions: { ...prev.reactions, fire: result.fireCount! } } : null,
+        )
+      }
+
+      toast({
+        title: "Flame Kindled",
+        description: "Your warmth has reached them.",
+      })
+    } else {
+      toast({
+        title: "Failed to light flame",
+        description: result.error || "Something went wrong.",
+        variant: "destructive",
+      })
+    }
+
+    setIsReacting(false)
+  }
+
+  const hasReacted = selectedLetter ? reactedLetterIds.includes(selectedLetter.id) : false
 
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
@@ -198,6 +254,43 @@ export function Mailbox({ onBack }: MailboxProps) {
                   <p className="font-mono text-white/90 leading-relaxed whitespace-pre-line text-lg font-medium">
                     {selectedLetter.content}
                   </p>
+                </div>
+
+                {/* Vigil Flame Reaction */}
+                <div className={`mb-10 p-6 rounded-xl border text-center relative overflow-hidden group/flame transition-colors duration-500 ${hasReacted ? "bg-orange-500/10 border-orange-500/30" : "bg-orange-500/5 border-orange-500/10"}`}>
+                  {/* Mystic background glow */}
+                  <div className={`absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.15),transparent_70%)] transition-opacity duration-700 ${hasReacted ? "opacity-100" : "opacity-0 group-hover/flame:opacity-100"}`} />
+
+                  <p className={`text-sm font-serif mb-4 italic transition-colors duration-500 ${hasReacted ? "text-orange-200" : "text-orange-200/70"}`}>
+                    {hasReacted ? "Your flame already burns for this soul." : "If you hear this soul, light a flame in the void."}
+                  </p>
+
+                  <div className="flex flex-col items-center gap-3">
+                    <button
+                      onClick={() => handleReact(selectedLetter.id)}
+                      disabled={isReacting || hasReacted}
+                      className={`relative flex items-center justify-center w-16 h-16 rounded-full bg-slate-900 border transition-all duration-500 group active:scale-95 disabled:opacity-100 ${
+                        hasReacted 
+                          ? "border-orange-500 shadow-[0_0_30px_rgba(249,115,22,0.6)] text-orange-500" 
+                          : "border-orange-500/30 text-orange-500 hover:scale-110 hover:border-orange-500 hover:shadow-[0_0_30px_rgba(249,115,22,0.4)]"
+                      }`}
+                    >
+                      <Flame
+                        className={`w-8 h-8 transition-all duration-500 ${
+                          isReacting ? "animate-pulse" : 
+                          hasReacted ? "fill-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]" : 
+                          "group-hover:fill-orange-500 group-hover:drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]"
+                        }`}
+                      />
+                      {/* Animated outer rings */}
+                      <div className={`absolute inset-0 rounded-full border border-orange-500/20 transition-all duration-1000 ${hasReacted ? "scale-125 opacity-0" : "scale-100 group-hover:scale-150 group-hover:opacity-0"}`} />
+                    </button>
+
+                    <div className="flex items-center gap-2 text-orange-200/50 text-xs font-medium">
+                      <span className={`w-1.5 h-1.5 rounded-full bg-orange-500/50 ${hasReacted ? "animate-none scale-125" : "animate-pulse"}`} />
+                      <span>{hasReacted ? "Eternal" : `${selectedLetter.reactions.fire} flames burning`}</span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Close button */}
